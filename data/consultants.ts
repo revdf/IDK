@@ -1,0 +1,95 @@
+import { Consultant } from '@/types'
+
+export const consultants: Consultant[] = [
+  {
+    id: 1,
+    name: 'Ana Silva',
+    title: 'Especialista em UX Research',
+    bio: '10+ anos de experiência em pesquisa de usuários e análise comportamental. Ex-Google, especialista em design thinking.',
+    avatar: '👩‍💼',
+    rating: 4.9,
+    reviews: 127,
+    pricePerHour: 250,
+    specialties: ['UX Research', 'Design Thinking', 'User Testing'],
+    experience: 10,
+    languages: ['Português', 'Inglês', 'Espanhol'],
+    availability: 'available',
+    verified: true
+  },
+  {
+    id: 2,
+    name: 'Carlos Mendes',
+    title: 'UI/UX Designer Sênior',
+    bio: 'Designer premiado com foco em interfaces conversão. Trabalhou em projetos para empresas Fortune 500.',
+    avatar: '👨‍🎨',
+    rating: 4.8,
+    reviews: 89,
+    pricePerHour: 300,
+    specialties: ['UI Design', 'Design System', 'Prototipação'],
+    experience: 8,
+    languages: ['Português', 'Inglês'],
+    availability: 'available',
+    verified: true
+  },
+  {
+    id: 3,
+    name: 'Mariana Costa',
+    title: 'Estratégia Digital & Growth',
+    bio: 'Especialista em estratégia digital e otimização de conversão. Ajudou empresas a aumentar receita em até 300%.',
+    avatar: '👩‍💻',
+    rating: 5.0,
+    reviews: 156,
+    pricePerHour: 350,
+    specialties: ['Estratégia Digital', 'Growth Hacking', 'Analytics'],
+    experience: 12,
+    languages: ['Português', 'Inglês'],
+    availability: 'available',
+    verified: true
+  },
+  {
+    id: 4,
+    name: 'Roberto Alves',
+    title: 'Frontend & Performance',
+    bio: 'Desenvolvedor especializado em performance web e otimização técnica. Expert em React, Next.js e Core Web Vitals.',
+    avatar: '👨‍💻',
+    rating: 4.7,
+    reviews: 73,
+    pricePerHour: 200,
+    specialties: ['Frontend', 'Performance', 'SEO Técnico'],
+    experience: 7,
+    languages: ['Português', 'Inglês'],
+    availability: 'busy',
+    verified: true
+  },
+  {
+    id: 5,
+    name: 'Juliana Santos',
+    title: 'Especialista em Acessibilidade',
+    bio: 'Especialista em design inclusivo e acessibilidade web. Certificada WCAG 2.1, trabalha para tornar a web mais inclusiva.',
+    avatar: '👩‍🏫',
+    rating: 4.9,
+    reviews: 94,
+    pricePerHour: 280,
+    specialties: ['Acessibilidade', 'Design Inclusivo', 'WCAG'],
+    experience: 9,
+    languages: ['Português', 'Inglês'],
+    availability: 'available',
+    verified: true
+  },
+  {
+    id: 6,
+    name: 'Felipe Oliveira',
+    title: 'Product Designer',
+    bio: 'Product Designer com foco em produtos digitais complexos. Especialista em design de produtos SaaS e B2B.',
+    avatar: '👨‍🔬',
+    rating: 4.8,
+    reviews: 112,
+    pricePerHour: 320,
+    specialties: ['Product Design', 'SaaS', 'B2B'],
+    experience: 11,
+    languages: ['Português', 'Inglês'],
+    availability: 'available',
+    verified: true
+  }
+]
+
