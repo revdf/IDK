@@ -206,6 +206,34 @@ export default function Header() {
             </Link>
           </nav>
         )}
+
+        <div className="w-full bg-gray-50 border-t border-gray-200 mt-4 rounded-xl">
+          <div className="flex flex-col md:flex-row md:items-center gap-3 px-4 md:px-6 py-3">
+            <span className="font-semibold text-gray-700 tracking-wide uppercase text-sm">
+              inovacao
+            </span>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/inovacao/ux-digital-twin"
+                className="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition shadow-sm text-center"
+              >
+                ux digital twin
+              </Link>
+              <Link
+                href="/inovacao/ux-boost-simulator"
+                className="px-4 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 transition shadow-sm text-center"
+              >
+                ux boost simulator
+              </Link>
+              <Link
+                href="/inovacao/analise-swot"
+                className="px-4 py-2 rounded-md bg-purple-500 text-white hover:bg-purple-600 transition shadow-sm text-center"
+              >
+                analise swot
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   )
