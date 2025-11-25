@@ -18,10 +18,14 @@ export default function LightningTrail() {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+    const setCanvasSize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    
+    setCanvasSize()
 
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d', { alpha: true })
     if (!ctx) return
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -86,38 +90,39 @@ export default function LightningTrail() {
         ctx.lineTo(points[i].x, points[i].y)
       }
 
-      // Gradiente elétrico - mais azul para fundo branco
+      // Gradiente elétrico - mais visível em fundos claros
       const gradient = ctx.createLinearGradient(from.x, from.y, to.x, to.y)
-      gradient.addColorStop(0, `rgba(59, 130, 246, ${0.9 * intensity})`) // Azul forte
-      gradient.addColorStop(0.3, `rgba(37, 99, 235, ${1.0 * intensity})`) // Azul mais escuro
-      gradient.addColorStop(0.7, `rgba(29, 78, 216, ${0.95 * intensity})`) // Azul escuro
-      gradient.addColorStop(1, `rgba(59, 130, 246, ${0.85 * intensity})`) // Azul
+      gradient.addColorStop(0, `rgba(37, 99, 235, ${Math.min(1, 0.7 * intensity + 0.3)})`) // Azul escuro mais opaco
+      gradient.addColorStop(0.3, `rgba(59, 130, 246, ${Math.min(1, 0.8 * intensity + 0.2)})`) // Azul forte
+      gradient.addColorStop(0.7, `rgba(37, 99, 235, ${Math.min(1, 0.85 * intensity + 0.15)})`) // Azul escuro
+      gradient.addColorStop(1, `rgba(59, 130, 246, ${Math.min(1, 0.75 * intensity + 0.25)})`) // Azul
 
       ctx.strokeStyle = gradient
-      ctx.lineWidth = 4 + intensity * 4 // Mais grosso (era 2 + intensity * 2)
+      ctx.lineWidth = 5 + intensity * 5 // Mais grosso para visibilidade
       ctx.lineCap = 'round'
       ctx.lineJoin = 'round'
-      ctx.shadowBlur = 15
-      ctx.shadowColor = 'rgba(59, 130, 246, 0.9)'
+      ctx.shadowBlur = 20
+      ctx.shadowColor = 'rgba(37, 99, 235, 0.8)'
       ctx.stroke()
 
       // Camada interna mais brilhante para visibilidade
-      ctx.strokeStyle = `rgba(147, 197, 253, ${0.8 * intensity})` // Azul claro
-      ctx.lineWidth = 2 + intensity * 2
-      ctx.shadowBlur = 8
-      ctx.shadowColor = 'rgba(59, 130, 246, 0.6)'
+      ctx.strokeStyle = `rgba(96, 165, 250, ${Math.min(1, 0.9 * intensity + 0.1)})` // Azul claro mais opaco
+      ctx.lineWidth = 3 + intensity * 3
+      ctx.shadowBlur = 12
+      ctx.shadowColor = 'rgba(59, 130, 246, 0.7)'
       ctx.stroke()
 
       // Brilho branco no centro para destaque
-      ctx.strokeStyle = `rgba(255, 255, 255, ${0.6 * intensity})`
-      ctx.lineWidth = 1
-      ctx.shadowBlur = 3
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.7 * intensity})`
+      ctx.lineWidth = 1.5
+      ctx.shadowBlur = 5
       ctx.stroke()
     }
 
-      const maxAge = 500 // 500ms de duração
+    const maxAge = 500 // 500ms de duração
 
-      const animate = () => {
+    const animate = () => {
+      if (!ctx) return
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
       const trail = trailRef.current
@@ -149,8 +154,7 @@ export default function LightningTrail() {
     animate()
 
     const handleResize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
+      setCanvasSize()
     }
 
     window.addEventListener('resize', handleResize)
@@ -167,8 +171,7 @@ export default function LightningTrail() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full pointer-events-none z-50"
-      style={{ mixBlendMode: 'normal' }}
+      className="fixed top-0 left-0 w-full h-full pointer-events-none z-[100]"
     />
   )
 }

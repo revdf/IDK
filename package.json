@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:open": "powershell -ExecutionPolicy Bypass -File ./dev-open.ps1",
+    "dev:auto": "start powershell -Command \"cd '$PWD'; npm run dev; timeout /t 5; start http://localhost:3000\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

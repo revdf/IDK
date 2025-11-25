@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, X, Play, Pause } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
-import Header from '@/components/Header'
+import { Header } from '@/components/Header'
 
 interface Slide {
   id: number

@@ -2,8 +2,11 @@
 
 import Link from 'next/link'
 import { Menu, X, Lightbulb, LightbulbOff } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
+
+type HeaderProps = { cartCount: number; onCartClick: () => void };
 
 interface NavItemProps {
   href: string
@@ -90,11 +93,31 @@ function NavItem({ href, children, isActive, color, hoverColor }: NavItemProps) 
   )
 }
 
-export default function Header() {
+export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [analysisUrl, setAnalysisUrl] = useState('')
+  const router = useRouter()
+
+  useEffect(() => {
+    const savedUrl = localStorage.getItem('idk-analysis-url') || ''
+    setAnalysisUrl(savedUrl)
+  }, [])
+
+  const handleUrlChange = (url: string) => {
+    setAnalysisUrl(url)
+    localStorage.setItem('idk-analysis-url', url)
+  }
+
+  const handleAnalysisClick = (path: string) => {
+    if (analysisUrl.trim()) {
+      router.push(`${path}?url=${encodeURIComponent(analysisUrl.trim())}`)
+    } else {
+      router.push(path)
+    }
+  }
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white shadow-sm sticky top-0 z-40">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="relative flex items-center">
@@ -208,33 +231,44 @@ export default function Header() {
         )}
 
         <div className="w-full bg-gray-50 border-t border-gray-200 mt-4 rounded-xl">
-          <div className="flex flex-col md:flex-row md:items-center gap-3 px-4 md:px-6 py-3">
-            <span className="font-semibold text-gray-700 tracking-wide uppercase text-sm">
-              inovacao
-            </span>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link
-                href="/inovacao/ux-digital-twin"
-                className="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition shadow-sm text-center"
-              >
-                ux digital twin
-              </Link>
-              <Link
-                href="/inovacao/ux-boost-simulator"
-                className="px-4 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 transition shadow-sm text-center"
-              >
-                ux boost simulator
-              </Link>
-              <Link
-                href="/inovacao/analise-swot"
-                className="px-4 py-2 rounded-md bg-purple-500 text-white hover:bg-purple-600 transition shadow-sm text-center"
-              >
-                analise swot
-              </Link>
+          <div className="flex flex-col gap-3 px-4 md:px-6 py-3">
+            <div className="flex flex-col sm:flex-row gap-3 items-center">
+              <input
+                type="url"
+                value={analysisUrl}
+                onChange={(e) => handleUrlChange(e.target.value)}
+                placeholder="digite aqui o site a ser analizado"
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+              />
+            </div>
+            <div className="flex flex-col md:flex-row md:items-center gap-3">
+              <span className="font-semibold text-gray-700 tracking-wide uppercase text-sm">
+                inovacao
+              </span>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => handleAnalysisClick('/inovacao/ux-digital-twin')}
+                  className="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition shadow-sm text-center"
+                >
+                  ux digital twin
+                </button>
+                <button
+                  onClick={() => handleAnalysisClick('/inovacao/ux-boost-simulator')}
+                  className="px-4 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 transition shadow-sm text-center"
+                >
+                  ux boost simulator
+                </button>
+                <button
+                  onClick={() => handleAnalysisClick('/inovacao/analise-swot')}
+                  className="px-4 py-2 rounded-md bg-purple-500 text-white hover:bg-purple-600 transition shadow-sm text-center"
+                >
+                  analise swot
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </header>
   )
-}
+};

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Header from '@/components/Header'
+import { Header } from '@/components/Header'
 import { consultationThemes } from '@/data/themes'
 import { consultants } from '@/data/consultants'
 import { Calendar, Clock, CheckCircle, ArrowLeft } from 'lucide-react'
@@ -25,7 +25,7 @@ export default function BookingPage() {
   if (!theme || !consultant) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header cartCount={0} onCartClick={() => {}} />
         <div className="container mx-auto px-4 py-12 text-center">
           <h1 className="text-3xl font-bold mb-4">Consultor ou tema não encontrado</h1>
           <Link href="/consultation" className="text-primary-600 hover:text-primary-700">
@@ -46,7 +46,7 @@ export default function BookingPage() {
   if (step === 2) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header cartCount={0} onCartClick={() => {}} />
         <div className="container mx-auto px-4 py-12 max-w-2xl">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -85,7 +85,7 @@ export default function BookingPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header cartCount={0} onCartClick={() => {}} />
       
       <main className="container mx-auto px-4 py-12 max-w-4xl">
         <Link

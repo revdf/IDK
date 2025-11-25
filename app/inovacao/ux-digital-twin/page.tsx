@@ -1,8 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle2, XCircle, AlertCircle, Info, X } from 'lucide-react'
+import { CheckCircle2, XCircle, AlertCircle, Info, X, Loader2 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 
 type FlowStep = {
   name: string
@@ -168,6 +169,8 @@ const checklistLabels: Record<keyof UxChecklist, { category: string; label: stri
 }
 
 export default function UxDigitalTwinPage() {
+  const searchParams = useSearchParams()
+  const urlParam = searchParams.get('url')
   const [twins, setTwins] = useState<DigitalTwin[]>(seedFlows)
   const [selected, setSelected] = useState<string>(seedFlows[0].id)
   const [newTwin, setNewTwin] = useState({
@@ -177,6 +180,105 @@ export default function UxDigitalTwinPage() {
   })
   const [activeTab, setActiveTab] = useState<'fluxo' | 'checklist'>('fluxo')
   const [showInfoModal, setShowInfoModal] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+
+  useEffect(() => {
+    if (urlParam) {
+      analyzeSite(urlParam)
+    }
+  }, [urlParam])
+
+  const analyzeSite = async (url: string) => {
+    setIsAnalyzing(true)
+    try {
+      const response = await fetch(`/api/analyze-site?url=${encodeURIComponent(url)}`)
+      const data = await response.json()
+
+      if (data.error) {
+        console.error('Analysis error:', data.error)
+        setIsAnalyzing(false)
+        return
+      }
+
+      // Criar twin baseado na análise
+      const analyzedTwin: DigitalTwin = {
+        id: `analyzed-${Date.now()}`,
+        persona: `usuario do site ${new URL(url).hostname}`,
+        goal: `analisar experiencia do site ${data.title || url}`,
+        accessibilityScore: data.scores?.accessibility || 70,
+        contrastScore: data.scores?.contrast || 75,
+        extraClicks: Math.max(0, Math.floor(data.linkCount / 10)),
+        brokenPaths: data.formCount > 0 && data.labelCount < data.inputCount ? 1 : 0,
+        loadTime: 2.0 + Math.random() * 1.5,
+        steps: generateStepsFromAnalysis(data),
+        checklist: {
+          valueProposition: !!data.title && data.title !== 'No title found',
+          h1Clarity: data.hasH1 && data.h1Count === 1,
+          subheadlineExists: !!data.hasMetaDescription,
+          navigationSimple: !!data.hasNavigation,
+          clearPathToCta: data.buttonCount > 0,
+          pageIndicator: !!data.hasNavigation,
+          loadSpeed: data.scores?.performance > 70,
+          ctaProminent: data.buttonCount > 0,
+          formsShort: data.formCount === 0 || (data.inputCount < 5 && data.labelCount >= data.inputCount),
+          searchAccurate: data.linkCount > 0,
+          consistency: true,
+          contrast: data.scores?.contrast > 70,
+          altText: data.imageCount === 0 || (data.imagesWithAlt / data.imageCount) > 0.8,
+          keyboardNav: !!data.hasAriaLabel || data.buttonCount > 0,
+          touchTargets: true,
+          contentHierarchy: data.hasH1 && data.hasMain,
+          scannable: data.hasH1,
+          visualHierarchy: data.hasHeader && data.hasMain,
+          responsive: !!data.hasViewport,
+          colorConsistency: true,
+          typographyConsistency: true,
+          imageQuality: data.imageCount > 0,
+          performance: data.scores?.performance > 60,
+        },
+      }
+
+      setTwins((prev) => [analyzedTwin, ...prev])
+      setSelected(analyzedTwin.id)
+      setIsAnalyzing(false)
+    } catch (error) {
+      console.error('Failed to analyze site:', error)
+      setIsAnalyzing(false)
+    }
+  }
+
+  const generateStepsFromAnalysis = (data: any): FlowStep[] => {
+    const steps: FlowStep[] = []
+    
+    if (data.hasHeader) {
+      steps.push({ name: 'header', touchpoint: 'cabecalho e navegacao', emotion: data.hasNavigation ? 'positivo' : 'neutro' })
+    }
+    
+    if (data.hasH1) {
+      steps.push({ name: 'conteudo', touchpoint: `titulo: ${data.title.substring(0, 30)}`, emotion: 'positivo' })
+    }
+    
+    if (data.buttonCount > 0) {
+      steps.push({ name: 'cta', touchpoint: `${data.buttonCount} botoes de acao`, emotion: data.buttonCount > 3 ? 'friccao' : 'positivo' })
+    }
+    
+    if (data.formCount > 0) {
+      steps.push({ 
+        name: 'formulario', 
+        touchpoint: `formulario com ${data.inputCount} campos`, 
+        emotion: data.labelCount < data.inputCount ? 'friccao' : 'neutro' 
+      })
+    }
+    
+    if (data.hasFooter) {
+      steps.push({ name: 'footer', touchpoint: 'rodape e links', emotion: 'neutro' })
+    }
+
+    return steps.length > 0 ? steps : [
+      { name: 'landing', touchpoint: 'pagina analisada', emotion: 'neutro' },
+      { name: 'navegacao', touchpoint: 'exploracao do conteudo', emotion: 'positivo' },
+    ]
+  }
 
   const current = useMemo(
     () => twins.find((flow) => flow.id === selected) ?? twins[0],
@@ -311,6 +413,17 @@ export default function UxDigitalTwinPage() {
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="max-w-6xl">
+          {isAnalyzing && (
+            <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center gap-3">
+              <Loader2 size={20} className="animate-spin text-blue-600" />
+              <span className="text-blue-700 font-medium">analisando site automaticamente...</span>
+            </div>
+          )}
+          {urlParam && !isAnalyzing && (
+            <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+              <span className="text-green-700 font-medium">analise concluida para: {urlParam}</span>
+            </div>
+          )}
           <div className="flex items-center gap-3 mb-2">
             <p className="text-primary-500 font-semibold tracking-wide uppercase">
               ux digital twin
@@ -326,9 +439,53 @@ export default function UxDigitalTwinPage() {
           <h1 className="text-4xl font-bold text-slate-900 mb-4">
             analise completa de ux/ui com gemeo digital da experiencia
           </h1>
-          <p className="text-slate-600 text-lg">
-            geramos um modelo interativo do fluxo real, destacamos friccoes, contraste, acessibilidade, navegacao, conteudo, hierarquia visual, responsividade e desempenho. tudo em um unico lugar.
+          <p className="text-slate-600 text-lg mb-6">
+            <strong className="text-slate-900">(gemeo digital de ux)</strong> refere-se a criacao de uma replica virtual, interativa e dinamica da experiencia real do usuario com um produto digital (como um site, aplicativo ou sistema).
           </p>
+
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-8">
+            <h2 className="text-xl font-bold text-slate-900 mb-4">elementos analisados</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b-2 border-slate-300">
+                    <th className="text-left py-3 px-4 font-semibold text-slate-700">elemento analisado</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-700">o que o gemeo digital de ux/ui identifica</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-blue-100/70 hover:bg-blue-100 transition-colors">
+                    <td className="py-4 px-4 font-semibold text-slate-900">fluxo real</td>
+                    <td className="py-4 px-4 text-slate-700">representacao do caminho que os usuarios realmente fazem, destacando desvios inesperados ou rotas longas.</td>
+                  </tr>
+                  <tr className="bg-rose-100/70 hover:bg-rose-100 transition-colors">
+                    <td className="py-4 px-4 font-semibold text-slate-900">friccoes</td>
+                    <td className="py-4 px-4 text-slate-700">pontos de dificuldade, confusao ou onde os usuarios abandonam a tarefa (ex: formularios complexos, erros).</td>
+                  </tr>
+                  <tr className="bg-emerald-100/70 hover:bg-emerald-100 transition-colors">
+                    <td className="py-4 px-4 font-semibold text-slate-900">contraste e acessibilidade</td>
+                    <td className="py-4 px-4 text-slate-700">avaliacao do design para garantir que elementos visuais sejam distinguiveis e utilizaveis por pessoas com deficiencias.</td>
+                  </tr>
+                  <tr className="bg-purple-100/70 hover:bg-purple-100 transition-colors">
+                    <td className="py-4 px-4 font-semibold text-slate-900">navegacao</td>
+                    <td className="py-4 px-4 text-slate-700">analise da facilidade com que o usuario se move entre as telas e encontra o que precisa.</td>
+                  </tr>
+                  <tr className="bg-amber-100/70 hover:bg-amber-100 transition-colors">
+                    <td className="py-4 px-4 font-semibold text-slate-900">conteudo e hierarquia visual</td>
+                    <td className="py-4 px-4 text-slate-700">avaliacao da clareza da informacao e de como os elementos sao priorizados na tela (o que chama mais a atencao).</td>
+                  </tr>
+                  <tr className="bg-cyan-100/70 hover:bg-cyan-100 transition-colors">
+                    <td className="py-4 px-4 font-semibold text-slate-900">responsividade</td>
+                    <td className="py-4 px-4 text-slate-700">simulacao de como a interface se comporta em diferentes dispositivos (celulares, tablets, desktops).</td>
+                  </tr>
+                  <tr className="bg-indigo-100/70 hover:bg-indigo-100 transition-colors">
+                    <td className="py-4 px-4 font-semibold text-slate-900">desempenho</td>
+                    <td className="py-4 px-4 text-slate-700">monitoramento de metricas como tempo de carregamento e estabilidade do sistema.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-3">

@@ -1,12 +1,12 @@
 'use client'
 
-import Header from '@/components/Header'
+import { Header } from '@/components/Header'
 import VideoCoursesSection from '@/components/VideoCoursesSection'
 
 export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header cartCount={0} onCartClick={() => {}} />
       
       <main className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">

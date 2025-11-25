@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { ArrowRight, CheckCircle, Users, Award, TrendingUp } from 'lucide-react'
 import { motion } from 'framer-motion'
-import Header from '@/components/Header'
+import { Header } from '@/components/Header'
 import ServicesSection from '@/components/ServicesSection'
 import ConsultationMarketplace from '@/components/ConsultationMarketplace'
 import VideoCoursesSection from '@/components/VideoCoursesSection'
@@ -12,7 +12,7 @@ import StatsSection from '@/components/StatsSection'
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <Header cartCount={0} onCartClick={() => {}} />
       
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-blue-800 text-white py-20">
